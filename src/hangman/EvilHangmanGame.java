@@ -9,6 +9,7 @@ import java.util.*;
 public class EvilHangmanGame implements IEvilHangmanGame
 {
     private TreeSet<String> wordBank;
+    private TreeSet<Character> guessedLetters;
     private int guessesLeft;
 
     /**
@@ -17,6 +18,7 @@ public class EvilHangmanGame implements IEvilHangmanGame
     public EvilHangmanGame()
     {
         wordBank = new TreeSet<>();
+        guessedLetters = new TreeSet<>();
         guessesLeft = 0;
     }
 
@@ -27,6 +29,7 @@ public class EvilHangmanGame implements IEvilHangmanGame
     public EvilHangmanGame(int guesses)
     {
         wordBank = new TreeSet<>();
+        guessedLetters = new TreeSet<>();
         guessesLeft = guesses;
     }
 
@@ -120,6 +123,6 @@ public class EvilHangmanGame implements IEvilHangmanGame
     @Override
     public SortedSet<Character> getGuessedLetters()
     {
-        return null;
+        return guessedLetters;
     }
 }
