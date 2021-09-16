@@ -8,7 +8,7 @@ import java.util.*;
 
 public class EvilHangmanGame implements IEvilHangmanGame
 {
-    private final TreeSet<String> wordBank;
+    private TreeSet<String> wordBank;
     private int guessesLeft;
 
     /**
@@ -81,6 +81,19 @@ public class EvilHangmanGame implements IEvilHangmanGame
         // If our word bank doesn't contain a word with the requested amount of characters (i.e., it's empty)
         if (correctWordLengthBank.isEmpty())
             throw new EmptyDictionaryException();
+
+        // Update our wordBank TreeSet to only hold the correct wordLength
+        updateWordBank(correctWordLengthBank);
+    }
+
+    /**
+     * This function updates our wordBank TreeSet to only hold the words that have not been eliminated yet
+     *
+     * @param remainingWordsBank Set containing the words with the correct wordLength
+     */
+    private void updateWordBank(TreeSet<String> remainingWordsBank)
+    {
+        this.wordBank = remainingWordsBank;
     }
 
     /**
