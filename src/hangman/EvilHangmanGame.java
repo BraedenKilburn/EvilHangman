@@ -13,6 +13,7 @@ public class EvilHangmanGame implements IEvilHangmanGame
     private final SortedSet<Character> guessedLetters;
     // Amount of guesses remaining before the player loses
     private int guessesLeft;
+    private String bestStringPattern;
 
     /**
      * Constructor with empty parameters, necessary for our passoff tests
@@ -22,6 +23,7 @@ public class EvilHangmanGame implements IEvilHangmanGame
         wordBank = new TreeSet<>();
         guessedLetters = new TreeSet<>();
         guessesLeft = 0;
+        bestStringPattern = "";
     }
 
     /**
@@ -29,11 +31,13 @@ public class EvilHangmanGame implements IEvilHangmanGame
      *
      * @param guesses number of guesses available to player before they lose
      */
-    public EvilHangmanGame(int guesses)
+    public EvilHangmanGame(int guesses, int wordLength)
     {
         wordBank = new TreeSet<>();
         guessedLetters = new TreeSet<>();
         guessesLeft = guesses;
+
+        bestStringPattern = "-".repeat(Math.max(0, wordLength));
     }
 
     /**
@@ -128,7 +132,6 @@ public class EvilHangmanGame implements IEvilHangmanGame
 
         // Character has not been guessed yet, add it to the Set
         guessedLetters.add(guess);
-        guessesLeft--;
 
         // Partition wordBank relative to the guessed letter
         Map<String, SortedSet<String>> partition = new TreeMap<>();
@@ -136,6 +139,10 @@ public class EvilHangmanGame implements IEvilHangmanGame
 
         // Choose the largest subset in the partition to be the new wordBank
         String newSubsetKey = getLargestSubsetKey(partition, guess);
+        this.bestStringPattern = getLargestSubsetKey(partition, guess);
+
+        if (Boolean.FALSE.equals((contains(bestStringPattern, guess))))
+            guessesLeft--;
 
         // Update our wordBank to just hold this new subset of words
         updateWordBank(partition.get(newSubsetKey));
@@ -292,5 +299,49 @@ public class EvilHangmanGame implements IEvilHangmanGame
     public SortedSet<Character> getGuessedLetters()
     {
         return guessedLetters;
+    }
+
+    public String getBestStringPattern()
+    {
+        return bestStringPattern;
+    }
+
+    public int getGuessesLeft()
+    {
+        return guessesLeft;
+    }
+
+    public int getCharacterCount(Character guess)
+    {
+        int count = 0;
+
+        for (int i = 0; i < this.bestStringPattern.length(); i++)
+        {
+            if (this.bestStringPattern.charAt(i) == guess)
+                count++;
+        }
+
+        return count;
+    }
+
+    public Boolean hasWon()
+    {
+        return wordBank.size() < 2;
+    }
+
+    public Boolean contains(String bestStringPattern, char guess)
+    {
+        for (int i = 0; i < bestStringPattern.length(); i++)
+        {
+            if (guess == bestStringPattern.charAt(i))
+                return true;
+        }
+
+        return false;
+    }
+
+    public String getValidWord()
+    {
+        return this.wordBank.last();
     }
 }
