@@ -42,8 +42,8 @@ public class EvilHangman
                     System.out.print(" " + guessedLetter);
                 System.out.print('\n');
 
-                String initialBestPattern = game.getBestStringPattern();
-                System.out.println("Word: " + initialBestPattern);
+                String currentRevealedWord = game.getCurrentRevealedWord();
+                System.out.println("Word: " + currentRevealedWord);
 
                 System.out.print("Enter guess: ");
                 Scanner input = new Scanner(System.in);
@@ -74,9 +74,9 @@ public class EvilHangman
                     continue;
                 }
 
-                String newBestPattern = game.getBestStringPattern();
+                String newRevealedWord = game.getCurrentRevealedWord();
 
-                if (newBestPattern.equals(initialBestPattern))
+                if (newRevealedWord.equals(currentRevealedWord))
                 {
                     guess = Character.toLowerCase(guess);
                     System.out.println("Sorry, there are no " + guess + "'s");
@@ -89,7 +89,7 @@ public class EvilHangman
             }
 
             if (Boolean.TRUE.equals(game.hasWon()))
-                System.out.println("Wow, you were actually able to win. Congratulations!");
+                System.out.printf("You win! You guessed the word: %s%n", game.getCurrentRevealedWord());
             else
             {
                 System.out.printf("%nYou lose!");

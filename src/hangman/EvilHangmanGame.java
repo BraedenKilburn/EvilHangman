@@ -14,6 +14,7 @@ public class EvilHangmanGame implements IEvilHangmanGame
     // Amount of guesses remaining before the player loses
     private int guessesLeft;
     private String bestStringPattern;
+    private String currentRevealedWord;
 
     /**
      * Constructor with empty parameters, necessary for our passoff tests
@@ -24,6 +25,7 @@ public class EvilHangmanGame implements IEvilHangmanGame
         guessedLetters = new TreeSet<>();
         guessesLeft = 0;
         bestStringPattern = "";
+        currentRevealedWord = "";
     }
 
     /**
@@ -37,7 +39,7 @@ public class EvilHangmanGame implements IEvilHangmanGame
         guessedLetters = new TreeSet<>();
         guessesLeft = guesses;
 
-        bestStringPattern = "-".repeat(Math.max(0, wordLength));
+        currentRevealedWord = "-".repeat(Math.max(0, wordLength));
     }
 
     /**
@@ -60,6 +62,7 @@ public class EvilHangmanGame implements IEvilHangmanGame
         if (dictionary == null || dictionary.length() == 0)
             throw new EmptyDictionaryException();
 
+        // Words must have at least two characters (single character words don't count)
         if (wordLength < 2)
             throw new EmptyDictionaryException();
 
@@ -138,17 +141,20 @@ public class EvilHangmanGame implements IEvilHangmanGame
         partitionWordBank(partition, guess);
 
         // Choose the largest subset in the partition to be the new wordBank
-        String newSubsetKey = getLargestSubsetKey(partition, guess);
-        this.bestStringPattern = getLargestSubsetKey(partition, guess);
+        bestStringPattern = getLargestSubsetKey(partition, guess);
 
+        // Current revealed word pattern
+        currentRevealedWord = makeCurrentRevealedWord(bestStringPattern);
+
+        // If the subset key doesn't contain our guess, player loses a guess
         if (Boolean.FALSE.equals((contains(bestStringPattern, guess))))
             guessesLeft--;
 
         // Update our wordBank to just hold this new subset of words
-        updateWordBank(partition.get(newSubsetKey));
+        updateWordBank(partition.get(bestStringPattern));
 
         // Return the set of all possible words
-        return this.wordBank;
+        return wordBank;
     }
 
     /**
@@ -301,22 +307,25 @@ public class EvilHangmanGame implements IEvilHangmanGame
         return guessedLetters;
     }
 
-    public String getBestStringPattern()
-    {
-        return bestStringPattern;
-    }
-
     public int getGuessesLeft()
     {
         return guessesLeft;
     }
 
-    public int getCharacterCount(Character guess)
+    /**
+     * How many times does a character appear in our subset key?
+     *
+     * @param guess Character to count
+     * @return number of character occurrences in our subset pattern
+     */
+    public int getCharacterCount(char guess)
     {
         int count = 0;
 
+        // For every character in our subset key
         for (int i = 0; i < this.bestStringPattern.length(); i++)
         {
+            // Keep a count of how many times we see our guess
             if (this.bestStringPattern.charAt(i) == guess)
                 count++;
         }
@@ -324,11 +333,21 @@ public class EvilHangmanGame implements IEvilHangmanGame
         return count;
     }
 
+    /**
+     * Function to determine if the player has won
+     * @return true if current revealed word contains no '-', false otherwise
+     */
     public Boolean hasWon()
     {
-        return wordBank.size() < 2;
+        return !(currentRevealedWord.contains("-"));
     }
 
+    /**
+     * Function to check if a certain char is found in a String
+     * @param bestStringPattern String to check for our char
+     * @param guess char to check
+     * @return true if the character is found at least once, false otherwise
+     */
     public Boolean contains(String bestStringPattern, char guess)
     {
         for (int i = 0; i < bestStringPattern.length(); i++)
@@ -340,8 +359,35 @@ public class EvilHangmanGame implements IEvilHangmanGame
         return false;
     }
 
+    /**
+     * @return arbitrary word (last word of available word bank) to pretend the computer "chose"
+     */
     public String getValidWord()
     {
         return this.wordBank.last();
+    }
+
+    /**
+     * Build our current revealed word pattern
+     * @param bestStringPattern current subset key
+     * @return current revealed word pattern
+     */
+    private String makeCurrentRevealedWord(String bestStringPattern)
+    {
+        StringBuilder stringBuilder = new StringBuilder(this.currentRevealedWord);
+
+        for (int i = 0; i < stringBuilder.toString().length(); i++)
+        {
+            if (stringBuilder.charAt(i) == '-' && bestStringPattern.charAt(i) != '-')
+            {
+                stringBuilder.setCharAt(i, bestStringPattern.charAt(i));
+            }
+        }
+        return stringBuilder.toString();
+    }
+
+    public String getCurrentRevealedWord()
+    {
+        return this.currentRevealedWord;
     }
 }
