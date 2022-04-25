@@ -1,5 +1,5 @@
 # EvilHangman
-Rigged Hangman game created for BYU CS 240
+Rigged Hangman game.
 
 ### Program Description 
 
